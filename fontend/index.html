@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>ค้นหาห้องพัก</title></head>
+<body>
+    <div style="display:flex; gap:10px;">
+        <h2>HotelEase</h2>
+        <button onclick="window.location.href='my-bookings.html'">ประวัติการจองของฉัน</button>
+        <button onclick="localStorage.clear(); window.location.reload();">ออกจากระบบ</button>
+    </div>
+    
+    <div style="background:#eee; padding:20px;">
+        <input type="text" id="loc" placeholder="สถานที่">
+        <input type="date" id="in"> <input type="date" id="out">
+        <button onclick="search()">ค้นหาห้องว่าง</button>
+    </div>
+    <div id="list"></div>
+
+    <script>
+        async function search() {
+            const check_in = document.getElementById('in').value;
+            const check_out = document.getElementById('out').value;
+            if(!check_in || !check_out) return alert('ใส่วันที่ให้ครบ');
+            
+            const res = await fetch(`http://localhost:3000/api/hotels?location=${document.getElementById('loc').value}&check_in=${check_in}&check_out=${check_out}`);
+            const hotels = await res.json();
+            
+            let html = '';
+            hotels.forEach(h => {
+                h.Rooms.forEach(r => {
+                    html += `<div style="border:1px solid #ccc; padding:10px; margin-top:10px;">
+                        <h3>${h.hotel_name} - ${r.room_type}</h3>
+                        <p>ราคา: ${r.price_per_night} | พักได้: ${r.max_occupancy}</p>
+                        <button onclick="window.location.href='booking.html?id=${r.room_id}&price=${r.price_per_night}&in=${check_in}&out=${check_out}'">จองห้องนี้</button>
+                    </div>`;
+                });
+            });
+            document.getElementById('list').innerHTML = html || '<p>ไม่พบห้องว่าง</p>';
+        }
+    </script>
+</body>
+</html>

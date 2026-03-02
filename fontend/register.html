@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>สมัครสมาชิก</title></head>
+<body>
+    <h2>สมัครสมาชิกสำหรับลูกค้า</h2>
+    <input type="text" id="username" placeholder="ชื่อ" required><br><br>
+    <input type="email" id="email" placeholder="อีเมล" required><br><br>
+    <input type="password" id="password" placeholder="รหัสผ่าน" required><br><br>
+    <button onclick="register()">สมัครสมาชิก</button>
+    <a href="login.html">ไปหน้าเข้าสู่ระบบ</a>
+
+    <script>
+        async function register() {
+            const body = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            const res = await fetch('http://localhost:3000/api/register', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            });
+            if(res.ok) { alert('สำเร็จ!'); window.location.href = 'login.html'; }
+            else alert('อีเมลซ้ำ หรือข้อมูลผิด');
+        }
+    </script>
+</body>
+</html>

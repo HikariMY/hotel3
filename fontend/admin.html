@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>หน้าจัดการ Admin</title></head>
+<body>
+    <h2>รายงานการจอง (แอดมิน)</h2>
+    <button onclick="localStorage.clear(); window.location.href='login.html'">ออกจากระบบ</button>
+    <table border="1" cellpadding="10" style="margin-top:20px;">
+        <tr><th>ID</th><th>ลูกค้า</th><th>ห้อง (โรงแรม)</th><th>วันที่เข้าพัก</th><th>สถานะ</th><th>เปลี่ยนสถานะ</th></tr>
+        <tbody id="tb"></tbody>
+    </table>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if(localStorage.getItem('role') !== 'พนักงาน') window.location.href = 'login.html';
+
+        async function load() {
+            const res = await fetch('http://localhost:3000/api/admin/bookings', { headers: { 'Authorization': `Bearer ${token}` } });
+            const bookings = await res.json();
+            
+            document.getElementById('tb').innerHTML = bookings.map(b => `
+                <tr>
+                    <td>#${b.booking_id}</td>
+                    <td>${b.User.username}</td>
+                    <td>${b.Room.room_type} (${b.Room.Hotel.hotel_name})</td>
+                    <td>${b.check_in_date} - ${b.check_out_date}</td>
+                    <td>${b.status}</td>
+                    <td>
+                        <select id="stat-${b.booking_id}">
+                            <option value="รอดำเนินการ" ${b.status==='รอดำเนินการ'?'selected':''}>รอดำเนินการ</option>
+                            <option value="ยืนยัน" ${b.status==='ยืนยัน'?'selected':''}>ยืนยัน</option>
+                            <option value="ยกเลิก" ${b.status==='ยกเลิก'?'selected':''}>ยกเลิก</option>
+                        </select>
+                        <button onclick="updateStat(${b.booking_id})">Save</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function updateStat(id) {
+            const stat = document.getElementById(`stat-${id}`).value;
+            await fetch(`http://localhost:3000/api/admin/bookings/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ status: stat })
+            });
+            alert('อัปเดตแล้ว'); load();
+        }
+        load();
+    </script>
+</body>
+</html>

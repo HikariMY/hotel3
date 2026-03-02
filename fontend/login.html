@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>เข้าสู่ระบบ</title></head>
+<body>
+    <h2>เข้าสู่ระบบ</h2>
+    <input type="email" id="email" placeholder="อีเมล"><br><br>
+    <input type="password" id="password" placeholder="รหัสผ่าน"><br><br>
+    <button onclick="login()">เข้าสู่ระบบ</button>
+    <a href="register.html">ยังไม่มีบัญชี?</a>
+
+    <script>
+        async function login() {
+            const body = { email: document.getElementById('email').value, password: document.getElementById('password').value };
+            const res = await fetch('http://localhost:3000/api/login', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+            });
+            const data = await res.json();
+            if(res.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                alert('สำเร็จ');
+                window.location.href = data.role === 'พนักงาน' ? 'admin.html' : 'index.html';
+            } else alert('อีเมล/รหัสผิด');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>การจองของฉัน</title></head>
+<body>
+    <h2>ประวัติการจองของฉัน</h2>
+    <a href="index.html">กลับหน้าแรก</a>
+    <ul id="list"></ul>
+
+    <script>
+        async function load() {
+            const token = localStorage.getItem('token');
+            if(!token) return window.location.href = 'login.html';
+
+            const res = await fetch('http://localhost:3000/api/my-bookings', { headers: { 'Authorization': `Bearer ${token}` } });
+            const bookings = await res.json();
+            
+            document.getElementById('list').innerHTML = bookings.map(b => 
+                `<li>จองวันที่: ${b.check_in_date} ถึง ${b.check_out_date} | ห้อง: ${b.Room.room_type} | <strong>สถานะ: ${b.status}</strong></li>`
+            ).join('');
+        }
+        load();
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="th">
+<head><meta charset="UTF-8"><title>ยืนยันการจอง</title></head>
+<body>
+    <h2>สรุปการจอง</h2>
+    <p id="details"></p>
+    <button onclick="confirmBooking()">ยืนยันและชำระเงิน</button>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const roomId = params.get('id');
+        const price = params.get('price');
+        const checkIn = params.get('in');
+        const checkOut = params.get('out');
+        
+        const nights = (new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24);
+        const total = nights * price;
+
+        document.getElementById('details').innerHTML = `วันเข้าพัก: ${checkIn} <br> วันออก: ${checkOut} <br> จำนวนคืน: ${nights} <br> <strong>ยอดรวม: ${total} บาท</strong>`;
+
+        async function confirmBooking() {
+            const token = localStorage.getItem('token');
+            if(!token) return window.location.href = 'login.html';
+
+            const res = await fetch('http://localhost:3000/api/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ room_id: roomId, check_in_date: checkIn, check_out_date: checkOut, total_amount: total })
+            });
+
+            if(res.ok) { alert('จองสำเร็จ!'); window.location.href = 'my-bookings.html'; }
+            else alert('เกิดข้อผิดพลาด');
+        }
+    </script>
+</body>
+</html>
